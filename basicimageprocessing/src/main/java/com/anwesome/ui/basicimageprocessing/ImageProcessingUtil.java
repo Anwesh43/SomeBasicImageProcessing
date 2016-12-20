@@ -22,7 +22,18 @@ public class ImageProcessingUtil {
             bitmap.setPixel(x,y,Color.argb(getAlpha(pixel),0,getGreen(pixel),getBlue(pixel)));
         }
     };
-
+    private static MainpulationHandler sepiaFilterManipulator = new MainpulationHandler() {
+        @Override
+        public void manipulateImage(Bitmap bitmap, int x, int y, int pixel) {
+            int newRedChannel = getAdditionOfAllChannels(pixel,0.393f,0.769f,0.189f);
+            int newGreenChannel = getAdditionOfAllChannels(pixel,0.349f,0.686f,0.168f);
+            int newBlueChannel = getAdditionOfAllChannels(pixel,0.272f,0.534f,0.131f);
+            newRedChannel = exceeds255(newRedChannel);
+            newGreenChannel = exceeds255(newGreenChannel);
+            newBlueChannel = exceeds255(newBlueChannel);
+            bitmap.setPixel(x,y,Color.argb(getAlpha(pixel),newRedChannel,newGreenChannel,newBlueChannel));
+        }
+    };
     private static int[][] getPixels(Bitmap bitmap) {
         int pixels[][] = new int[bitmap.getWidth()][bitmap.getHeight()];
         for(int i=0;i<bitmap.getWidth();i++) {
@@ -31,6 +42,9 @@ public class ImageProcessingUtil {
             }
         }
         return pixels;
+    }
+    private static int exceeds255(int value) {
+        return (value>255)?255:value;
     }
     private static int getAlpha(int pixel) {
         return Color.alpha(pixel);
@@ -44,13 +58,15 @@ public class ImageProcessingUtil {
     private static int getBlue(int pixel) {
         return Color.blue(pixel);
     }
-    public static void createGrayScaleImage(Bitmap bitmap,ImageView imageView){
+    private static void createNewImageWithFilter(Bitmap bitmap,ImageView imageView,MainpulationHandler manipulationHandler) {
         Bitmap newBitmap = createBitmapFromOrignalBitmap(bitmap);
         int pixels[][] = getPixels(bitmap);
         int w= bitmap.getWidth(),h = bitmap.getHeight();
-        ImageMainpThread imageMainpThread = new ImageMainpThread(newBitmap,pixels,0,0,w,h,grayScaleManipulator,imageView);
+        ImageMainpThread imageMainpThread = new ImageMainpThread(newBitmap,pixels,0,0,w,h,manipulationHandler,imageView);
         new Thread(imageMainpThread).start();
-
+    }
+    public static void createGrayScaleImage(Bitmap bitmap,ImageView imageView){
+        createNewImageWithFilter(bitmap,imageView,grayScaleManipulator);
     }
     public static Bitmap compressBitmapToScale(Bitmap orginalBitmap,float scale) {
         Bitmap bitmap = Bitmap.createBitmap((int)(orginalBitmap.getWidth()*scale),(int)(orginalBitmap.getHeight()*scale),Bitmap.Config.ARGB_8888);
@@ -63,12 +79,15 @@ public class ImageProcessingUtil {
         canvas.restore();
         return bitmap;
     }
+    private static int getAdditionOfAllChannels(int pixel,float rValue,float gValue,float bValue ) {
+        int red = getRed(pixel),green = getGreen(pixel),blue = getBlue(pixel);
+        return (int)(red*rValue+green*gValue+blue*bValue);
+    }
     public static void subtractRedChannelFromBitmap(Bitmap bitmap,ImageView imageView) {
-        Bitmap newBitmap = createBitmapFromOrignalBitmap(bitmap);
-        int pixels[][] = getPixels(bitmap);
-        int w= bitmap.getWidth(),h = bitmap.getHeight();
-        ImageMainpThread imageMainpThread = new ImageMainpThread(newBitmap,pixels,0,0,w,h,subtractRedManipulator,imageView);
-        new Thread(imageMainpThread).start();
+        createNewImageWithFilter(bitmap,imageView,subtractRedManipulator);
+    }
+    public static void applySepiaFilter(Bitmap bitmap,ImageView imageView) {
+        createNewImageWithFilter(bitmap,imageView,sepiaFilterManipulator);
     }
     private static Bitmap createBitmapFromOrignalBitmap(Bitmap bitmap) {
         return Bitmap.createBitmap(bitmap.getWidth(),bitmap.getHeight(), Bitmap.Config.ARGB_8888);
