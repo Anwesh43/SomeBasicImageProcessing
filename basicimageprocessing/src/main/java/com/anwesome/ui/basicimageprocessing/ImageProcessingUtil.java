@@ -16,6 +16,12 @@ public class ImageProcessingUtil {
             bitmap.setPixel(x,y,Color.argb(getAlpha(pixel),(int)gs,(int)gs,(int)gs));
         }
     };
+    private static MainpulationHandler subtractRedManipulator = new MainpulationHandler() {
+        @Override
+        public void manipulateImage(Bitmap bitmap, int x, int y, int pixel) {
+            bitmap.setPixel(x,y,Color.argb(getAlpha(pixel),0,getGreen(pixel),getBlue(pixel)));
+        }
+    };
 
     private static int[][] getPixels(Bitmap bitmap) {
         int pixels[][] = new int[bitmap.getWidth()][bitmap.getHeight()];
@@ -46,7 +52,13 @@ public class ImageProcessingUtil {
         new Thread(imageMainpThread).start();
 
     }
-
+    public static void subtractRedChannelFromBitmap(Bitmap bitmap,ImageView imageView) {
+        Bitmap newBitmap = createBitmapFromOrignalBitmap(bitmap);
+        int pixels[][] = getPixels(bitmap);
+        int w= bitmap.getWidth(),h = bitmap.getHeight();
+        ImageMainpThread imageMainpThread = new ImageMainpThread(newBitmap,pixels,0,0,w,h,subtractRedManipulator,imageView);
+        new Thread(imageMainpThread).start();
+    }
     private static Bitmap createBitmapFromOrignalBitmap(Bitmap bitmap) {
         return Bitmap.createBitmap(bitmap.getWidth(),bitmap.getHeight(), Bitmap.Config.ARGB_8888);
     }
