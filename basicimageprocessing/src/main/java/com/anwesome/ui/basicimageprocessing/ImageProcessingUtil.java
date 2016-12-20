@@ -15,9 +15,10 @@ public class ImageProcessingUtil {
         @Override
         public void manipulateImage(Bitmap bitmap, int x, int y, int pixel) {
             float gs = 0.16f*getRed(pixel)+0.34f*getGreen(pixel)+0.25f*getBlue(pixel);
-            bitmap.setPixel(x,y,Color.argb(Color.alpha(pixel),(int)gs,(int)gs,(int)gs));
+            bitmap.setPixel(x,y,Color.argb(getAlpha(pixel),(int)gs,(int)gs,(int)gs));
         }
     };
+
     private static int[][] getPixels(Bitmap bitmap) {
         int pixels[][] = new int[bitmap.getWidth()][bitmap.getHeight()];
         for(int i=0;i<bitmap.getWidth();i++) {
@@ -26,6 +27,9 @@ public class ImageProcessingUtil {
             }
         }
         return pixels;
+    }
+    private static int getAlpha(int pixel) {
+        return Color.alpha(pixel);
     }
     private static int getRed(int pixel) {
         return Color.red(pixel);
@@ -37,12 +41,16 @@ public class ImageProcessingUtil {
         return Color.blue(pixel);
     }
     public static void createGrayScaleImage(Bitmap bitmap,ImageView imageView){
-        Bitmap newBitmap = Bitmap.createBitmap(bitmap.getWidth(),bitmap.getHeight(), Bitmap.Config.ARGB_8888);
+        Bitmap newBitmap = createBitmapFromOrignalBitmap(bitmap);
         int pixels[][] = getPixels(bitmap);
         int w= bitmap.getWidth(),h = bitmap.getHeight();
         ImageMainpThread imageMainpThread = new ImageMainpThread(newBitmap,pixels,0,0,w,h,grayScaleManipulator,imageView);
         new Thread(imageMainpThread).start();
 
+    }
+
+    private static Bitmap createBitmapFromOrignalBitmap(Bitmap bitmap) {
+        return Bitmap.createBitmap(bitmap.getWidth(),bitmap.getHeight(), Bitmap.Config.ARGB_8888);
     }
     private static class ImageMainpThread implements Runnable{
         private int startI,startJ,endI,endJ;
