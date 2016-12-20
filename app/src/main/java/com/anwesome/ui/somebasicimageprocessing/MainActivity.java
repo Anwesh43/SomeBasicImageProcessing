@@ -19,10 +19,12 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         ImageView imageView = (ImageView)findViewById(R.id.imv);
         ImageView imageView1 = (ImageView)findViewById(R.id.imv1);
+        ImageView imageView2 = (ImageView)findViewById(R.id.imv2);
         Drawable drawable = imageView.getDrawable();
         Bitmap carBitmap = BitmapFactory.decodeResource(getResources(),R.drawable.car4);
         Bitmap bitmap = ImageProcessingUtil.compressBitmapToScale(carBitmap,0.7f);
         ImageProcessingUtil.createGrayScaleImage(bitmap,imageView);
         ImageProcessingUtil.subtractRedChannelFromBitmap(bitmap,imageView1);
+        ImageProcessingUtil.applySepiaFilter(bitmap,imageView2);
     }
 }
