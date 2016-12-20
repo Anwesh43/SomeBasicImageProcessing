@@ -52,6 +52,17 @@ public class ImageProcessingUtil {
         new Thread(imageMainpThread).start();
 
     }
+    public static Bitmap compressBitmapToScale(Bitmap orginalBitmap,float scale) {
+        Bitmap bitmap = Bitmap.createBitmap((int)(orginalBitmap.getWidth()*scale),(int)(orginalBitmap.getHeight()*scale),Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        canvas.save();
+        canvas.translate(bitmap.getWidth()/2,bitmap.getHeight()/2);
+        canvas.scale(scale,scale);
+        canvas.drawBitmap(orginalBitmap,-orginalBitmap.getWidth()/2,-orginalBitmap.getHeight()/2,paint);
+        canvas.restore();
+        return bitmap;
+    }
     public static void subtractRedChannelFromBitmap(Bitmap bitmap,ImageView imageView) {
         Bitmap newBitmap = createBitmapFromOrignalBitmap(bitmap);
         int pixels[][] = getPixels(bitmap);
