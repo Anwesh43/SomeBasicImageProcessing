@@ -1,9 +1,7 @@
 package com.anwesome.ui.basicimageprocessing;
 
 import android.graphics.*;
-import android.media.Image;
 import android.os.Handler;
-import android.util.Log;
 import android.widget.ImageView;
 
 /**
